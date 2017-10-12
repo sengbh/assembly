@@ -59,13 +59,12 @@ main:
 		# You MUST test your completed program for AT LEAST the 
 		# test cases shown (and include the result in hardcopy).
 		##########################################################		
-		sra $t1 $t1, 5		
-		sra $t2, $t2, 5
-		andi $t3, $t1, 1
-		andi $t4, $t2, 1
-		sll $t3, $t3, 1
-		or $a0, $t3, $t4
-		
+		sra $t1, $t1, 5		#$t1 first alpha shift 5-right	
+		sra $t2, $t2, 5		#t2 second alpha shift 5-right
+		andi $t3, $t1, 1	#t3 holds first alpha
+		andi $t4, $t2, 1	#t4 holds second alpha
+		sll $t3, $t3, 1		#shift t2 by 1
+		or $a0, $t3, $t4	#set t1 to bitwise OR of t2 and t3 
 		
 				
 		syscall			# display desired output
