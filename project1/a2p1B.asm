@@ -1,5 +1,5 @@
 ##########################################################################
-# <your name>, CS 2318-00?, Assignment 2 Part 1 Program B
+# Bunrith Seng, CS 2318-003, Assignment 2 Part 1 Program B
 ############################ data segment ################################
 		.data
 legend:		.asciiz "0 = UpUp, 1 = UpLo, 2 = LoUp, 3 = LoLo\n"
