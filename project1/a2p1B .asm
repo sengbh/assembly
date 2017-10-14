@@ -64,7 +64,7 @@ main:
 		andi $t3, $t1, 1	#t3 holds first alpha
 		andi $t4, $t2, 1	#t4 holds second alpha
 		sll $t3, $t3, 1		#shift t2 by 1
-		or $a0, $t3, $t4	#set t1 to bitwise OR of t2 and t3 
+		xor $a0, $t3, $t4	#set t1 to bitwise XOR of t2 and t3 
 		
 				
 		syscall			# display desired output
