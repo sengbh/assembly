@@ -5,13 +5,20 @@
 # Exam 2 and Final Exam. It then computes the weighted average score 
 # Using the formula avg = e1*(256/1285) + e2*(39/128) + final/2
 # and displays a labeled output about the average score
-############################ data segment ################################
+#########################################################################
 
 			.data
 prompt1:		.asciiz "Enter exam 1 score: "
 prompt2:		.asciiz "Enter exam 2 score: "
 promptFinal:		.asciiz "Enter final score: "		
 average:		.asciiz "The average score is: "
+############################ data segment ################################
+
+			#Fellas
+			#DO NOT copy this code word-by-word
+			#Or we will get in trouble
+			#Please modify yours
+			#Thanks
 			.text
 			.globl main
 main:
