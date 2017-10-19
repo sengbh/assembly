@@ -13,12 +13,6 @@ prompt2:		.asciiz "Enter exam 2 score: "
 promptFinal:		.asciiz "Enter final score: "		
 average:		.asciiz "The average score is: "
 ############################ data segment ################################
-
-			#Fellas
-			#DO NOT copy this code word-by-word
-			#Or we will get in trouble
-			#Please modify yours
-			#Thanks
 			.text
 			.globl main
 main:
