@@ -1,8 +1,8 @@
 ################################################################################
-# Name:		<your name>
-# Class:	CS2318 - <your section>, Fall 2017
+# Name:		Bunrith Seng
+# Class:	CS2318 -002, Fall 2017
 # Subject:	Assignment 3 Part 2
-# Date:		<turn-in date> 
+# Date:		<12/07/2017> 
 ################################################################################
 #void CoutCstr(char cstr[]);
 #void CoutCstrNL(char cstr[]);
@@ -76,6 +76,10 @@ begW1:
 			addi $a2, $sp, 232
 			addi $a3, $sp, 280
 			########## (4) ##########
+			addi $t0, $sp, 180
+			sw $t0, 16($sp)
+			addi $t0, $sp, 176
+			sw $t0, 20($sp)
 			jal ProcArrays
 #		ShowArrayLabeled(a1, used1, procA1Str);
 			addi $a0, $sp, 184
@@ -560,6 +564,12 @@ ShiftLeftBy1:
 ###############################################################################
 #		int* elePtr;
 #		int valOfEle;
+		#PROLOG:
+		addiu $sp, $sp, -32
+		sw $ra, 28($sp)
+		sw $fp, 24($sp)
+		addiu $fp, $sp, 32
+		sw $s1, 0($sp)
 
 #		elePtr = firstElePtr;
 #		goto FTest2;
@@ -570,6 +580,20 @@ ShiftLeftBy1:
 #FTest2:         if (elePtr <= lastElePtr) goto begF2;
 #endF2:
 #   }
+		
+		move $t1, $a0
+		j FTest2
+begF2:
+		lw $s1, 0($t1)
+		sw $s1, -4($t1)
+		addi $t1, $t1, 4
+FTest2:
+		ble $t1, $a1, begF2
+endF2:
+		lw $ra, 28($sp)
+		lw $fp, 24($sp)
+		lw $s1, 0($sp)
+		addiu $sp, $sp, 32
 			########## (15) ##########
 #		return;
 #}
@@ -621,40 +645,100 @@ MakeAM1D:
 #		int* hopPtr2;
 #		int* endPtr1;
 #		int* endPtr2;
+		# PROLOG:
+		addiu $sp, $sp, -48
+		sw $ra, 44($sp)
+		sw $fp, 40($sp)
+		addiu $fp, $sp, 48
+			
+		sw $a0, 0($fp)
+		sw $a1, 4($fp)
+		sw $s1, 16($sp)
 
+		
 #		hopPtr1 = a;
+		move $t1, $a0
 #		endPtr1 = a + *usedPtr - 1;
+		lw $t8, 0($a1)
+		addi $t8, $t8, -1
+		sll $t8, $t8, 2
+		add $t8, $t8, $a0
 #		goto WTest3;
-#begW3:
+		j WTest3
+begW3:
 #		found = 0;
+		li $s1, 0
 #		hopPtr2 = hopPtr1 + 1;
+		addi $t2, $t1, 4
 #		endPtr2 = a + *usedPtr;
+		lw $t3, 4($fp)
+		lw $t9, 0($t3)
+		sll $t9, $t9, 2
+		lw $t4, 0($fp)
+			add $t9, $t9, $t4
 #		goto FTest1;
-#begF1:
+		j FTest1
+begF1:
 #		if (*hopPtr2 != *hopPtr1) goto endI4;
-#begI4:
+		lw $t3, 0($t2)
+		lw $t4, 0($t1)
+		bne $t3, $t4, endI4
+begI4:
 #		if (found != 1) goto else5;
-#begI5:
+		li $t3, 1
+		bne $s1, $t3, else5
+begI5:
 #		ShiftLeftBy1(hopPtr2 + 1, endPtr2 - 1);
+		sw $t1, 24($sp)
+		sw $t2, 28($sp)
+		sw $t8, 32($sp)
+		sw $t9, 36($sp)
+		addi $a0, $t2, 4
+		addi $a1, $t9, -4
+		jal ShiftLeftBy1
+		lw $t1, 24($sp)
+		lw $t2, 28($sp)
+		lw $t8, 32($sp)
+		lw $t9, 36($sp)
 #		--(*usedPtr);
+		lw $t3, 4($fp)
+		lw $t4, 0($t3)
+		addi $t4, $t4, -1
+		sw $t4, 0($t3)
 #		--endPtr1;
+		addi $t8, $t8, -4
 #		--endPtr2;
-#               --hopPtr2;
+		addi $t9, $t9, -4
+#		--hopPtr2;
+		addi $t2, $t2, -4
 #		goto endI5;
-#else5:
+		j endI5
+else5:
 #		++found;
-#endI5:
-#endI4:
+		addi $s1, $s1, 1
+endI5:
+endI4:
 #		++hopPtr2;
-#FTest1:	if (hopPtr2 < endPtr2) goto begF1;
-#endF1:
+		addi $t2, $t2, 4
+FTest1:	
+#		if (hopPtr2 < endPtr2) goto begF1;
+		blt $t2, $t9, begF1
+endF1:
 #		++hopPtr1;
-#WTest3:	if (hopPtr1 < endPtr1) goto begW3;
-#endW3:
+		addi $t1, $t1, 4
+WTest3:	
+#		if (hopPtr1 < endPtr1) goto begW3;
+		blt $t1, $t8, begW3
+endW3:
+			# EPILOG:
+		lw $fp, 40($sp)				
+		lw $ra, 44($sp)
+		lw $s1, 16($sp)
+		addiu $sp, $sp, 48
 			########## (54) ##########
 #		return;
 #}
-			jr $ra
+		jr $ra
 
 
 
@@ -679,16 +763,27 @@ CalcTruncAvg:
 #		int* endPtr;
 
 #		sum = 0;
+		move $t0, $0
 #		hopPtr = a + used - 1;
+		addi $v0, $a1, -1
+		sll $v0, $v0, 2
+		add $t1, $a0, $v0
 #		endPtr = a;
-#begDW4:
+		move $t9, $a0
+begDW4:
 #		sum += *hopPtr;
+		lw $v0, 0($t1)           
+		add $t0, $t0, $v0  
 #		--hopPtr;
-#endDW4:
-#DWTest4:	if (hopPtr >= endPtr) goto begDW4;
+		addi $t1, $t1, -4
+endDW4:
+#DWTest4:#	if (hopPtr >= endPtr) goto begDW4;
+DWTest4:	
+		bge $t1, $t9, begDW4
 
 #		return sum / used;
-
+		div $t0, $a1
+		mflo $v0
 			########## (11) ##########
 #}
 #########################################
@@ -743,47 +838,105 @@ CalcA2A3:
 #		int* endPtr11;
 
 #		*used2Ptr = 0;
+		lw $t0, 20($sp)
+		sw $0, 0($t0)
 #		*used3Ptr = 0;
+		lw $t0, 24($sp)
+		sw $0, 0($t0)
 #		hopPtr2 = a2;
+		move $t2, $a2
 #		hopPtr3 = a3;
+		move $t3, $a3
 
 #		hopPtr1 = a1;
+		move $t1, $a1
 #		endPtr1 = a1 + *used1Ptr;
+		lw $t0, 16($sp)
+		lw $t9, 0($t0)
+		sll $t9, $t9, 2
+		add $t9, $t9, $a1
 #		goto FTest3;
-#begF3:
+		j FTest3
+begF3:
 #		if (*hopPtr1 == truncAvg) goto endI8;
-#begI8:
+		lw $t0, 0($t1)
+		beq $t0, $a0, endI8
+begI8:
 #		if (*hopPtr1 >= truncAvg) goto else9;
-#begI9:
+		bge $t0, $a0, else9
+begI9:
 #		*hopPtr2 = *hopPtr1;
+		lw $t0, 0($t1)
+		sw $t0, 0($t2)
 #		++(*used2Ptr);
+		lw $t0, 20($sp)
+		lw $v1, 0($t0)
+		addi $v1, $v1, 1
+		sw $v1, 0($t0)
 #		++hopPtr2;
+		addi $t2, $t2, 4
 #		goto endI9;
-#else9:
+		j endI9
+else9:
 #		*hopPtr3 = *hopPtr1;
+		lw $t0, 0($t1)
+		sw $t0, 0($t3)
 #		++(*used3Ptr);
+		lw $t0, 24($sp)
+		lw $v1, 0($t0)
+		addi $v1, $v1, 1
+		sw $v1, 0($t0)
 #		++hopPtr3;
-#endI9:
+		addi $t3, $t3, 4
+endI9:
 #		hopPtr11 = hopPtr1 + 1;
+		addi $t4, $t1, 4
 #		endPtr11 = a1 + *used1Ptr;
+		lw $t0, 16($sp)
+		lw $t8, 0($t0)
+		sll $t8, $t8, 2
+		add $t8, $t8, $a1
 #		goto FTest4;
-#begF4:
+			j FTest4
+begF4:
 #		*(hopPtr11 - 1) = *hopPtr11;
+		lw $t0, 0($t4)
+		sw $t0, -4($t4)
 #		++hopPtr11;
-#FTest4:	if (hopPtr11 < endPtr11) goto begF4;
-#endF4:
+		addi $t4, $t4, 4
+FTest4:	
+#		if (hopPtr11 < endPtr11) goto begF4;
+		blt $t4, $t8, begF4
+endF4:
 #		--(*used1Ptr);
+		lw $t0, 16($sp)
+		lw $v1, 0($t0)
+		addi $v1, $v1, -1
+		sw $v1, 0($t0)
 #		--endPtr1;
+		addi $t9, $t9, -4
 #		--hopPtr1;
-#endI8:
+		addi $t1, $t1, -4
+endI8:
 #		++hopPtr1;
-#FTest3:	if (hopPtr1 < endPtr1) goto begF3;
-#endF3:
+		addi $t1, $t1, 4
+FTest3:	
+#		if (hopPtr1 < endPtr1) goto begF3;
+		blt $t1, $t9, begF3
+endF3:
 #		if (*used1Ptr != 0) goto endIa;
-#begIa:
+		lw $t0, 16($sp)
+		lw $v1, 0($t0)
+		bne $v1, $0, endIa
+begIa:
 #		*(a1 + 0) = truncAvg;
+		sw $a0, 0($a1)
 #		++(*used1Ptr);
-#endIa:
+		lw $t0, 16($sp)
+		lw $v1, 0($t0)
+		addi $v1, $v1, 1
+		sw $v1, 0($t0)
+endIa:
 			########## (54) ##########
 #		return;
 #}
@@ -828,9 +981,15 @@ endDataInitPrAr:
 			ble $v1, $t0, else3
 begI3:
 #		MakeAM1D(a1, used1Ptr);
-			########## (2) ##########
+			lw $a0, 4($fp)
+			lw $a1, 16($fp)
+			##########(2)##########
 			jal MakeAM1D
 #		ShowArrayLabeled(a1, *used1Ptr, am1dA1Str);
+			lw $a0, 4($fp)				
+			lw $t0, 16($fp) 			
+			lw $a1, 0($t0)				
+			addi $a2, $sp, 32
 			########## (4) ##########
 			jal ShowArrayLabeled
 #		if (*used1Ptr <= 0) goto endI7;
@@ -839,12 +998,25 @@ begI3:
 			blez $v1, endI7
 begI7:
 #		truncAvg = CalcTruncAvg(a1, *used1Ptr);
+			lw $a0, 4($fp)
+			lw $t0, 16($fp)
+			lw $a1, 0($t0)
 			########## (3) ##########
 			jal CalcTruncAvg
 			move $t1, $v0				# $t1 has truncAvg returned
 			#j begDebugCalcTruncAvg			# uncomment this instruction if useful when debugging 
 endDebugCalcTruncAvg:			
 #		CalcA2A3(truncAvg, a1, a2, a3, used1Ptr, used2Ptr, used3Ptr);
+			move $a0, $t1				
+			lw $a1, 4($fp)				
+			lw $a2, 8($fp)				
+			lw $a3, 12($fp)				
+			lw $v1, 16($fp)				
+			sw $v1, 16($sp)				
+			lw $v1, 20($fp)				
+			sw $v1, 20($sp)				
+			lw $v1, 0($fp)				
+			sw $v1, 24($sp)				
 			########## (10) ##########
 			jal CalcA2A3
 endI7:
